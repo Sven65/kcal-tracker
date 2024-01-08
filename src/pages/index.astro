@@ -1,0 +1,20 @@
+---
+import ProgressCircle from '../components/ProgressCircle.astro'
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Welcome to Astro." theme="dark">
+	<main>
+		<h1 class="text-3xl font-bold underline text-amber-300">
+			Hello world!
+		</h1>
+		<ProgressCircle fillColorDark={'amber-300'} fillColor='amber-600' strokeColorDark={'amber-600'} size={96} />
+	</main>
+</Layout>
+
+<style>
+	/* main {
+		width: 100vw;
+		height: 100vh;
+	} */
+</style>

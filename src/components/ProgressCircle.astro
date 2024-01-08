@@ -1,0 +1,59 @@
+---
+import type { TailwindTextColor } from '../types/tailwind/colors'
+
+import {TailwindSpacingLookup } from '../types/tailwind/tailwind'
+import {TailwindTextColors} from '../types/tailwind/colors'
+
+interface Props {
+	size?: keyof typeof TailwindSpacingLookup,
+	textColor?: TailwindTextColor,
+	textColorDark?: TailwindTextColor,
+	fillColor?: TailwindTextColor,
+	fillColorDark?: TailwindTextColor,
+	strokeColor?: TailwindTextColor,
+	strokeColorDark?: TailwindTextColor,
+}
+
+
+const {
+	size = 64,
+	textColor = 'gray-800',
+	textColorDark = 'white',
+	fillColor = 'blue-600',
+	fillColorDark = 'blue-500',
+	strokeColor = 'gray-200',
+	strokeColorDark = 'gray-700',
+} = Astro.props
+
+let newSize = TailwindSpacingLookup[size]
+
+const circleSize = parseFloat(newSize.replace('px', '')) - 4;
+
+---
+
+
+<!-- Circular Progress -->
+<div class={`relative ${TailwindSpacingLookup[size]}`}>
+	<svg class="" width={circleSize} height={circleSize} viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+	<!-- Background Circle -->
+	<circle cx="18" cy="18" r="16" fill="none" class=`stroke-current ${TailwindTextColors[strokeColor]} dark:${TailwindTextColors[strokeColorDark]}` stroke-width="2"></circle>
+	<!-- Progress Circle inside a group with rotation -->
+	<g class="origin-center -rotate-90 transform">
+		<circle cx="18" cy="18" r="16" fill="none" class=`stroke-current ${TailwindTextColors[fillColor]} dark:${TailwindTextColors[fillColorDark]}` stroke-width="2" stroke-dasharray="100" stroke-dashoffset="75"></circle>
+	</g>
+	</svg>
+<!-- Percentage Text -->
+<div class="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2">
+	<span class=`text-center text-2xl font-bold ${TailwindTextColors[textColor]} dark:${TailwindTextColors[textColorDark]}`>Hello World!</span>
+</div>
+</div>
+<!-- End Circular Progress -->
+
+<style>
+	.progress-ring__circle {
+		stroke-dasharray: 400, 400;
+		transition: stroke-dash offset 0.35s;
+		transform: rotate(-90deg);
+		transform-origin: 50% 50%;
+	}
+</style>
