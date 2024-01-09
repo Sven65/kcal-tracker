@@ -13,7 +13,7 @@ export interface LineItem {
 
 export interface TrackerContextData {
 	usedKcal: [number, StateUpdater<number>]
-	lineItems: [LineItem[], (me: string, value: number) => void]
+	lineItems: [LineItem[], (name: string, value: number) => void, (id: number) => void]
 }
 
 
@@ -59,6 +59,9 @@ const getDateId = (): string => {
 
 // addLineItem: (name: string, value: number) => void,
 
+const findLineItemById = (lineItems: LineItem[], id: number): LineItem => {
+	return lineItems.find(item => item.id === id)
+}
 
 
 export const TrackerContextProvider = ({children}) => {
@@ -74,7 +77,7 @@ export const TrackerContextProvider = ({children}) => {
 	}, []);
 
  	const { add: addDay, update, getOneByKey } = useIndexedDBStore("days");
-	const { add: addLineItemToDb, getManyByKey: getManyLineItemsByKey } = useIndexedDBStore("lineItems");
+	const { add: addLineItemToDb, getManyByKey: getManyLineItemsByKey, deleteByID: deleteLineItemByID } = useIndexedDBStore("lineItems");
 
 
 
@@ -120,16 +123,34 @@ export const TrackerContextProvider = ({children}) => {
 	}
 
 	const addLineItem = (name: string, value: number) => {
-		setLineItems([
-			...lineItems,
-			{date: getDateId(), timestamp: Date.now(), name, value},
-		])
-		addLineItemToDb({date: getDateId(), timestamp: Date.now(), name, value})
+		addLineItemToDb({date: getDateId(), timestamp: Date.now(), name, value}).then(id => {
+			setLineItems([
+				...lineItems,
+				{date: getDateId(), timestamp: Date.now(), name, value, id},
+			])
+		})
+	}
+
+	const deleteLineItem = (id: number) => {
+		const item = findLineItemById(lineItems, id)
+
+		const newKcal = usedKcal - item.value
+
+		update({date: getDateId(), usedKcal: newKcal})
+		setUsedKcalCtx(newKcal)
+
+		const newLineItems = lineItems.filter((item) => item.id !== id)
+
+		setLineItems(newLineItems)
+
+		deleteLineItemByID(id)
+
+	
 	}
 
 	const trackerContext: TrackerContextData = {
 		usedKcal: [usedKcal, setUsedKcal],
-		lineItems: [lineItems, addLineItem],
+		lineItems: [lineItems, addLineItem, deleteLineItem],
 	}
 
 

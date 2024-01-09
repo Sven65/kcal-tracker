@@ -12,7 +12,7 @@ export default function Home() {
 
 	const [usedKcal, setUsedKcal] = appContext.usedKcal
 
-	const [lineItems, addLineItem] = appContext.lineItems
+	const [lineItems, addLineItem, deleteLineItem] = appContext.lineItems
 
 	const [modalOpen, setModalOpen] = useState(false)
 
@@ -43,7 +43,7 @@ export default function Home() {
 				Add Item
 			</Button>
 
-			<ItemTable lineItems={lineItems} />
+			<ItemTable lineItems={lineItems} onDelete={deleteLineItem}/>
 		</main>
 	);
 }
