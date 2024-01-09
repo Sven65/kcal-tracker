@@ -12,6 +12,7 @@ export interface LineItem {
 }
 
 export interface TrackerContextData {
+	date: string,
 	usedKcal: [number, StateUpdater<number>]
 	lineItems: [LineItem[], (name: string, value: number) => void, (id: number) => void]
 }
@@ -19,6 +20,7 @@ export interface TrackerContextData {
 
 
 export const TrackerContext = createContext<TrackerContextData>({
+	date: null,
 	usedKcal: null,
 	lineItems: null,
 })
@@ -149,6 +151,7 @@ export const TrackerContextProvider = ({children}) => {
 	}
 
 	const trackerContext: TrackerContextData = {
+		date: getDateId(),
 		usedKcal: [usedKcal, setUsedKcal],
 		lineItems: [lineItems, addLineItem, deleteLineItem],
 	}

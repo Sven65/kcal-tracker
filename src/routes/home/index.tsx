@@ -18,11 +18,11 @@ export default function Home() {
 
 	return (
 		<main>
+			<h1>Kcals for {appContext.date}</h1>
 			<KcalAddModal
 				open={modalOpen}
 				onClose={() => setModalOpen(false)}
 				onSave={(name, value, save) => {
-					console.log(name, value, save)
 					setUsedKcal(usedKcal + value)
 					addLineItem(name, value)
 					setModalOpen(false)
