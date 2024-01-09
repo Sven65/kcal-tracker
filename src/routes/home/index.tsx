@@ -1,10 +1,13 @@
-import style from './style.module.css';
 import Button from '../../components/Button'
 import ProgressCircle from '../../components/ProgressCircle';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { TrackerContext } from '../../context/trackerContext';
+
 
 export default function Home() {
-	const [value, setValue] = useState(0)
+	const appContext = useContext(TrackerContext)
+
+	const [usedKcal, setUsedKcal] = appContext.usedKcal
 
 	return (
 		<main>
@@ -16,11 +19,11 @@ export default function Home() {
 				fillColor='amber-600'
 				strokeColorDark={'amber-600'}
 				size={96}
-				text="Hello, World!"
+				text={`${usedKcal} / 100`}
 				max={100}
-				used={value}
+				used={usedKcal}
 			/>
-			<Button id="increase" onClick={() => {setValue(value + 1)}}>
+			<Button id="increase" onClick={() => {setUsedKcal(usedKcal + 1)}}>
 				Increase Value
 			</Button>
 		</main>
