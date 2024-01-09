@@ -25,7 +25,7 @@ const ProgressCircle = (props: Props) => {
 		fillColorDark = 'blue-500',
 		strokeColor = 'gray-200',
 		strokeColorDark = 'gray-700',
-		text = '',
+		text = 'sex',
 		max,
 		used,
 	} = props

@@ -5,17 +5,19 @@ import { IndexedDBConfig } from "use-indexeddb/dist/interfaces";
 
 export interface TrackerContextData {
 	usedKcal: [number, StateUpdater<number>]
+	addLineItem: (name: string, value: number) => void,
 }
 
 
 export const TrackerContext = createContext<TrackerContextData>({
-	usedKcal: null
+	usedKcal: null,
+	addLineItem: () => {},
 })
 
 
 const idbConfig: IndexedDBConfig = {
 	databaseName: "fruity-db",
-	version: 1,
+	version: 3,
 	stores: [
 	  {
 		name: "days",
@@ -25,6 +27,17 @@ const idbConfig: IndexedDBConfig = {
 			{ name: "usedKcal", keyPath: "usedKcal" },
 		],
 	  },
+	  {
+		name: 'lineItems',
+		id: {keyPath: 'id', autoIncrement: true},
+		indices: [
+			{ name: 'id', keyPath: 'id' },
+			{ name: 'timestamp', keyPath: 'timestamp' },
+			{ name: 'date', keyPath: 'date' },
+			{ name: 'kcal', keyPath: 'kcal' },
+			{ name: 'name', keyPath: 'name' },
+		]
+	  }
 	],
   };
   
@@ -48,14 +61,16 @@ export const TrackerContextProvider = ({children}) => {
 		  	.catch(e => console.error("error / unsupported", e));
 	}, []);
 
- 	const { add, update, getOneByKey } = useIndexedDBStore("days");
+ 	const { add: addDay, update, getOneByKey } = useIndexedDBStore("days");
+	const { add: addLineItemToDb } = useIndexedDBStore("lineItems");
+
 
 
 	useEffect(() => {
 		getOneByKey('date', getDateId()).then((data) => {
 			if (!data) {
 				data = {date: getDateId(), usedKcal: 0}
-				add({data})
+				addDay({data})
 			}
 			
 			setTrackerContextData(data)
@@ -74,8 +89,13 @@ export const TrackerContextProvider = ({children}) => {
 		setUsedKcalCtx(value)
 	}
 
+	const addLineItem = (name: string, value: number) => {
+		addLineItemToDb({date: getDateId(), timestamp: Date.now(), name, value})
+	}
+
 	const trackerContext: TrackerContextData = {
-		usedKcal: [usedKcal, setUsedKcal]
+		usedKcal: [usedKcal, setUsedKcal],
+		addLineItem,
 	}
 
 
