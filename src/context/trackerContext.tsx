@@ -3,15 +3,24 @@ import { StateUpdater, useEffect, useState } from "preact/hooks";
 import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 import { IndexedDBConfig } from "use-indexeddb/dist/interfaces";
 
+export interface LineItem {
+	id: number,
+	timestamp: string,
+	date: string,
+	value: number,
+	name: string
+}
+
 export interface TrackerContextData {
 	usedKcal: [number, StateUpdater<number>]
-	addLineItem: (name: string, value: number) => void,
+	lineItems: [LineItem[], (me: string, value: number) => void]
 }
+
 
 
 export const TrackerContext = createContext<TrackerContextData>({
 	usedKcal: null,
-	addLineItem: () => {},
+	lineItems: null,
 })
 
 
@@ -48,10 +57,13 @@ const getDateId = (): string => {
 	return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`
 }
 
+// addLineItem: (name: string, value: number) => void,
+
 
 
 export const TrackerContextProvider = ({children}) => {
 	let [trackerContextData, setTrackerContextData] = useState(null)
+	let [loadedLineItems, setLoadedLineItems] = useState(null)
 
 	useEffect(() => {
 		setupIndexedDB(idbConfig)
@@ -62,7 +74,7 @@ export const TrackerContextProvider = ({children}) => {
 	}, []);
 
  	const { add: addDay, update, getOneByKey } = useIndexedDBStore("days");
-	const { add: addLineItemToDb } = useIndexedDBStore("lineItems");
+	const { add: addLineItemToDb, getManyByKey: getManyLineItemsByKey } = useIndexedDBStore("lineItems");
 
 
 
@@ -80,9 +92,27 @@ export const TrackerContextProvider = ({children}) => {
 		})
 	}, [])
 
-	if (!trackerContextData) return <h1>Loading</h1>
+	useEffect(() => {
+		getManyLineItemsByKey('date', getDateId()).then((data) => {
+			console.log("got lineItems data", data)
+
+			if (!data) {
+				return
+			}
+
+			setLoadedLineItems(data)
+
+		})
+		.catch(e => {
+			console.error(e)
+		})
+	}, [])
+
+	if (!trackerContextData || !loadedLineItems) return <h1>Loading</h1>
 	
 	const [usedKcal, setUsedKcalCtx] = useState(trackerContextData.usedKcal || 0)
+	const [lineItems, setLineItems] = useState(loadedLineItems)
+
 
 	const setUsedKcal = (value: number) => {
 		update({date: getDateId(), usedKcal: value})
@@ -90,12 +120,16 @@ export const TrackerContextProvider = ({children}) => {
 	}
 
 	const addLineItem = (name: string, value: number) => {
+		setLineItems([
+			...lineItems,
+			{date: getDateId(), timestamp: Date.now(), name, value},
+		])
 		addLineItemToDb({date: getDateId(), timestamp: Date.now(), name, value})
 	}
 
 	const trackerContext: TrackerContextData = {
 		usedKcal: [usedKcal, setUsedKcal],
-		addLineItem,
+		lineItems: [lineItems, addLineItem],
 	}
 
 

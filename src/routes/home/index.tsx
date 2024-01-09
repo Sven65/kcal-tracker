@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { TrackerContext } from '../../context/trackerContext';
 import { useState } from 'react';
 import KcalAddModal from '../../components/Modal/KcalAddModal';
+import ItemTable from '../../components/ItemTable';
 
 
 export default function Home() {
@@ -11,7 +12,7 @@ export default function Home() {
 
 	const [usedKcal, setUsedKcal] = appContext.usedKcal
 
-	const addLineItem = appContext.addLineItem
+	const [lineItems, addLineItem] = appContext.lineItems
 
 	const [modalOpen, setModalOpen] = useState(false)
 
@@ -41,6 +42,8 @@ export default function Home() {
 			<Button id="add-item" onClick={() => {setModalOpen(true)}} textColor='amber-400' backgroundColor='emerald-700'>
 				Add Item
 			</Button>
+
+			<ItemTable lineItems={lineItems} />
 		</main>
 	);
 }
